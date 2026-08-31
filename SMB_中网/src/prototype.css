@@ -1,0 +1,569 @@
+/* App-specific styling for the ThinkPad value-refresh prototype. */
+
+:root {
+  --lenovo-red: #df1f1f;
+  --lenovo-red-dark: #c81717;
+  --service-green: #2f9a47;
+  --service-gray: #9aa3ae;
+  --ink: #15191f;
+  --muted: #707a88;
+  --hairline: #dfe4e9;
+  --page-bg: #eef2f6;
+  --surface: #ffffff;
+}
+
+.value-refresh-app {
+  position: absolute;
+  inset: 0;
+  overflow: hidden;
+  background: var(--page-bg);
+  color: var(--ink);
+  font-family: -apple-system, BlinkMacSystemFont, "SF Pro Text", "PingFang SC", "Microsoft YaHei", sans-serif;
+}
+
+.value-refresh-app button {
+  border: 0;
+  color: inherit;
+  font: inherit;
+}
+
+.app-header {
+  position: absolute;
+  z-index: 30;
+  top: 0;
+  right: 0;
+  left: 0;
+  display: grid;
+  grid-template-columns: 86px 1fr 86px;
+  align-items: end;
+  height: 108px;
+  padding: 54px 16px 12px;
+  border-bottom: 1px solid rgba(255, 255, 255, 0.85);
+  background: rgba(238, 242, 246, 0.96);
+  backdrop-filter: blur(16px);
+}
+
+.app-header h1 {
+  align-self: center;
+  margin: 0;
+  font-size: 22px;
+  font-weight: 680;
+  letter-spacing: 0.01em;
+  text-align: center;
+}
+
+.header-icon-button {
+  display: grid;
+  align-self: center;
+  justify-self: start;
+  width: 38px;
+  height: 38px;
+  padding: 0;
+  place-items: center;
+  border-radius: 12px;
+  background: transparent;
+}
+
+.header-icon-button:active,
+.bind-device-button:active {
+  background: rgba(15, 23, 42, 0.08);
+}
+
+.bind-device-button {
+  align-self: center;
+  justify-self: end;
+  height: 34px;
+  padding: 0 12px;
+  border: 1px solid #303742 !important;
+  border-radius: 10px;
+  background: rgba(255, 255, 255, 0.76);
+  font-size: 14px;
+  font-weight: 560;
+  white-space: nowrap;
+}
+
+.app-screen {
+  background: var(--page-bg);
+}
+
+.screen-content {
+  min-height: 100%;
+  padding: 124px 0 calc(var(--mobile-safe-area-height) + 36px);
+}
+
+.device-switcher {
+  padding: 0 0 18px;
+}
+
+.device-switcher-heading {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 0 18px 14px;
+}
+
+.device-switcher-heading h2 {
+  margin: 0;
+  font-size: 20px;
+  font-weight: 650;
+}
+
+.device-switcher-heading h2 span {
+  margin-left: 4px;
+  color: var(--muted);
+  font-size: 16px;
+  font-weight: 450;
+}
+
+.device-switcher-heading p {
+  margin: 4px 0 0;
+  color: var(--muted);
+  font-size: 12px;
+}
+
+.carousel-position {
+  display: flex;
+  gap: 8px;
+  align-items: center;
+  color: var(--muted);
+  font-size: 12px;
+  font-variant-numeric: tabular-nums;
+}
+
+.position-dots {
+  display: flex;
+  gap: 5px;
+}
+
+.position-dots i {
+  display: block;
+  width: 6px;
+  height: 6px;
+  border-radius: 50%;
+  background: #b6bec8;
+}
+
+.position-dots i[data-active="true"] {
+  background: var(--lenovo-red);
+}
+
+.device-carousel {
+  padding: 0 18px;
+}
+
+.device-carousel-track {
+  gap: 10px;
+  padding-right: 18px;
+}
+
+.device-chip {
+  position: relative;
+  display: grid;
+  flex: 0 0 160px;
+  grid-template-columns: 46px minmax(0, 1fr);
+  gap: 6px;
+  align-items: center;
+  height: 92px;
+  padding: 8px;
+  border: 1px solid #d4dbe3 !important;
+  border-radius: 14px;
+  background: rgba(255, 255, 255, 0.86);
+  text-align: left;
+}
+
+.device-chip[data-active="true"] {
+  border-color: var(--lenovo-red) !important;
+  background: var(--surface);
+  box-shadow: 0 8px 24px rgba(38, 48, 62, 0.08);
+}
+
+.device-chip img {
+  width: 46px;
+  height: 48px;
+  object-fit: contain;
+}
+
+.device-chip-copy {
+  display: grid;
+  min-width: 0;
+  gap: 5px;
+}
+
+.device-chip-copy strong {
+  overflow: hidden;
+  font-size: 11px;
+  font-weight: 620;
+  line-height: 1.25;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.device-chip-copy small {
+  color: var(--muted);
+  font-size: 10px;
+  font-variant-numeric: tabular-nums;
+}
+
+.device-chip-state {
+  position: absolute;
+  right: 7px;
+  bottom: 7px;
+  display: grid;
+  width: 18px;
+  height: 18px;
+  place-items: center;
+  border-radius: 50%;
+  background: #b7bec7;
+  color: white;
+}
+
+.device-chip[data-active="true"] .device-chip-state {
+  background: var(--lenovo-red);
+}
+
+.device-detail {
+  margin: 0 14px;
+  overflow: hidden;
+  border: 1px solid rgba(208, 216, 225, 0.92);
+  border-radius: 22px;
+  background: rgba(255, 255, 255, 0.94);
+  box-shadow: 0 14px 30px rgba(43, 55, 70, 0.07);
+}
+
+.device-profile {
+  display: grid;
+  grid-template-columns: 125px minmax(0, 1fr);
+  gap: 13px;
+  align-items: center;
+  min-height: 168px;
+  padding: 18px 18px 14px;
+}
+
+.device-image-wrap {
+  display: grid;
+  width: 125px;
+  height: 122px;
+  place-items: center;
+}
+
+.device-image-wrap img {
+  width: 122px;
+  height: 108px;
+  object-fit: contain;
+}
+
+.device-profile-copy {
+  min-width: 0;
+}
+
+.device-profile-copy h2 {
+  margin: 0 0 12px;
+  font-size: 18px;
+  font-weight: 700;
+  line-height: 1.18;
+  white-space: nowrap;
+}
+
+.device-profile-copy dl,
+.device-info-panel dl {
+  margin: 0;
+}
+
+.device-profile-copy dl div {
+  display: grid;
+  grid-template-columns: 64px minmax(0, 1fr);
+  gap: 5px;
+  margin-top: 8px;
+  font-size: 12px;
+  line-height: 1.45;
+}
+
+.device-profile-copy dt,
+.device-info-panel dt {
+  color: var(--muted);
+}
+
+.device-profile-copy dd,
+.device-info-panel dd {
+  min-width: 0;
+  margin: 0;
+  overflow-wrap: anywhere;
+}
+
+.detail-tabs {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  margin: 0 14px;
+  border-bottom: 1px solid var(--hairline);
+}
+
+.detail-tabs button {
+  position: relative;
+  height: 52px;
+  background: transparent;
+  color: #525b67;
+  font-size: 18px;
+  font-weight: 560;
+}
+
+.detail-tabs button[data-active="true"] {
+  color: var(--lenovo-red);
+  font-weight: 680;
+}
+
+.detail-tabs button[data-active="true"]::after {
+  position: absolute;
+  right: 35%;
+  bottom: -1px;
+  left: 35%;
+  height: 3px;
+  border-radius: 3px;
+  background: var(--lenovo-red);
+  content: "";
+}
+
+.service-panel {
+  padding: 0 14px 16px;
+}
+
+.service-list {
+  padding-top: 8px;
+}
+
+.service-row {
+  padding: 15px 8px;
+  border-bottom: 1px solid var(--hairline);
+}
+
+.service-row[data-featured="true"] {
+  margin: 0;
+  padding: 14px 10px 12px;
+  border: 1px solid rgba(47, 154, 71, 0.36);
+  border-radius: 14px;
+  background: #f8fcf8;
+}
+
+.service-main-row {
+  display: grid;
+  grid-template-columns: 86px minmax(0, 1fr) 55px;
+  gap: 8px;
+  align-items: center;
+}
+
+.service-main-row strong {
+  font-size: 14px;
+  font-weight: 650;
+}
+
+.service-period {
+  color: #5d6673;
+  font-size: 11px;
+  font-variant-numeric: tabular-nums;
+  white-space: nowrap;
+}
+
+.service-status {
+  display: inline-flex;
+  gap: 5px;
+  align-items: center;
+  justify-content: flex-end;
+  color: var(--service-gray);
+  font-size: 12px;
+  white-space: nowrap;
+}
+
+.service-status i {
+  width: 7px;
+  height: 7px;
+  border-radius: 50%;
+  background: currentColor;
+}
+
+.service-status[data-valid="true"] {
+  color: var(--service-green);
+}
+
+.eligibility-result {
+  margin-top: 12px;
+  padding: 10px;
+  border-radius: 10px;
+  background: #edf7ef;
+  color: var(--service-green);
+  font-size: 14px;
+  font-weight: 620;
+  text-align: center;
+}
+
+.eligibility-result[data-eligible="false"] {
+  background: #f0f2f4;
+  color: #727b86;
+}
+
+.trade-in-button {
+  width: 100%;
+  height: 52px;
+  margin-top: 16px;
+  border-radius: 12px;
+  background: var(--lenovo-red);
+  color: #fff !important;
+  font-size: 18px !important;
+  font-weight: 700 !important;
+  box-shadow: 0 8px 18px rgba(223, 31, 31, 0.2);
+}
+
+.trade-in-button:active {
+  background: var(--lenovo-red-dark);
+}
+
+.trade-in-button[data-disabled="true"] {
+  background: #aeb5bd;
+  box-shadow: none;
+}
+
+.partner-note {
+  margin: 10px 0 0;
+  color: var(--muted);
+  font-size: 11px;
+  line-height: 1.5;
+  text-align: center;
+}
+
+.device-info-panel {
+  padding: 12px 22px 22px;
+}
+
+.device-info-panel dl div {
+  display: grid;
+  grid-template-columns: 76px minmax(0, 1fr);
+  gap: 14px;
+  padding: 13px 0;
+  border-bottom: 1px solid var(--hairline);
+  font-size: 13px;
+  line-height: 1.5;
+}
+
+.device-info-panel p {
+  margin: 16px 0 0;
+  color: var(--muted);
+  font-size: 12px;
+}
+
+.source-note {
+  margin: 14px 18px 0;
+  color: #87919e;
+  font-size: 11px;
+  line-height: 1.5;
+  text-align: center;
+}
+
+.prototype-notice {
+  position: absolute;
+  z-index: 58;
+  top: 118px;
+  left: 50%;
+  max-width: calc(100% - 44px);
+  padding: 9px 14px;
+  transform: translate(-50%, -10px);
+  border-radius: 999px;
+  background: rgba(27, 32, 39, 0.88);
+  color: white;
+  font-size: 12px;
+  opacity: 0;
+  pointer-events: none;
+  transition: 180ms ease;
+  white-space: nowrap;
+}
+
+.prototype-notice[data-visible="true"] {
+  transform: translate(-50%, 0);
+  opacity: 1;
+}
+
+.action-sheet-body {
+  display: grid;
+  gap: 16px;
+}
+
+.action-sheet-body p {
+  margin: 0;
+  color: var(--muted);
+  font-size: 14px;
+  line-height: 1.6;
+}
+
+.action-sheet-body > button {
+  display: inline-flex;
+  gap: 8px;
+  align-items: center;
+  justify-content: center;
+  width: 100%;
+  height: 48px;
+  border-radius: 12px;
+  background: var(--lenovo-red);
+  color: white;
+  font-size: 15px;
+  font-weight: 650;
+}
+
+.handoff-device {
+  display: grid;
+  grid-template-columns: 86px minmax(0, 1fr);
+  gap: 12px;
+  align-items: center;
+  padding: 8px 12px;
+  border: 1px solid var(--hairline);
+  border-radius: 14px;
+}
+
+.handoff-device img {
+  width: 82px;
+  height: 64px;
+  object-fit: contain;
+}
+
+.handoff-device div {
+  display: grid;
+  gap: 5px;
+}
+
+.handoff-device strong {
+  font-size: 14px;
+}
+
+.handoff-device span {
+  color: var(--muted);
+  font-size: 12px;
+}
+
+@media (max-width: 360px) {
+  .app-header {
+    grid-template-columns: 76px 1fr 76px;
+    padding-right: 12px;
+    padding-left: 12px;
+  }
+
+  .bind-device-button {
+    padding: 0 9px;
+    font-size: 13px;
+  }
+
+  .device-profile {
+    grid-template-columns: 108px minmax(0, 1fr);
+    padding-right: 14px;
+    padding-left: 14px;
+  }
+
+  .device-image-wrap,
+  .device-image-wrap img {
+    width: 106px;
+  }
+
+  .service-main-row {
+    grid-template-columns: 76px minmax(0, 1fr) 50px;
+    gap: 5px;
+  }
+
+  .service-period {
+    font-size: 10px;
+  }
+}

@@ -1,0 +1,59 @@
+name: Deploy ThinkPad H5 to GitHub Pages
+
+on:
+  push:
+    branches: [main]
+    paths:
+      - "SMB_中网/**"
+      - ".github/workflows/pages.yml"
+  workflow_dispatch:
+
+permissions:
+  contents: read
+  pages: write
+  id-token: write
+
+concurrency:
+  group: pages
+  cancel-in-progress: true
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    defaults:
+      run:
+        working-directory: SMB_中网
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+      - name: Setup Node
+        uses: actions/setup-node@v4
+        with:
+          node-version: 22
+          cache: npm
+          cache-dependency-path: SMB_中网/package-lock.json
+      - name: Install dependencies
+        run: npm ci
+      - name: Verify prototype runtime
+        run: npm run check:runtime
+      - name: Type-check
+        run: npx tsc
+      - name: Build for project Pages path
+        run: npx vite build --base=/LenovoPRD/
+      - name: Configure Pages
+        uses: actions/configure-pages@v5
+      - name: Upload Pages artifact
+        uses: actions/upload-pages-artifact@v3
+        with:
+          path: SMB_中网/dist/client
+
+  deploy:
+    environment:
+      name: github-pages
+      url: ${{ steps.deployment.outputs.page_url }}
+    runs-on: ubuntu-latest
+    needs: build
+    steps:
+      - name: Deploy to GitHub Pages
+        id: deployment
+        uses: actions/deploy-pages@v4
