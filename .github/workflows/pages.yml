@@ -40,6 +40,10 @@ jobs:
         run: npx tsc
       - name: Build for project Pages path
         run: npx vite build --base=/LenovoPRD/
+      - name: Rewrite runtime asset paths for Pages
+        run: node scripts/prepare-github-pages.mjs /LenovoPRD/
+      - name: Verify Pages asset paths
+        run: node --test tests/pages-asset-paths.test.mjs
       - name: Configure Pages
         uses: actions/configure-pages@v5
         with:
