@@ -27,4 +27,6 @@ test("GitHub Pages bundle contains no root-relative asset URLs", () => {
   assert.deepEqual(offenders, []);
   assert.ok(contents.some((content) => content.includes("/LenovoPRD/assets/products/thinkpad-t14p-gen3.png")));
   assert.ok(contents.some((content) => content.includes("/LenovoPRD/assets/iphone/Bezel.png")));
+  const indexHtml = readFileSync(join(output, "index.html"), "utf8");
+  assert.match(indexHtml, /\/LenovoPRD\/assets\/index-[^"/]+-pages-[0-9a-f]{8}\.js/);
 });
