@@ -1,6 +1,7 @@
 #!/usr/bin/env node
-import { readdirSync, readFileSync, writeFileSync } from "node:fs";
-import { dirname, extname, join, resolve } from "node:path";
+import { createHash } from "node:crypto";
+import { readdirSync, readFileSync, renameSync, writeFileSync } from "node:fs";
+import { basename, dirname, extname, join, resolve } from "node:path";
 import { fileURLToPath } from "node:url";
 
 const root = resolve(dirname(fileURLToPath(import.meta.url)), "..");
@@ -22,6 +23,7 @@ function collectTextFiles(directory) {
 }
 
 let replacements = 0;
+const rewrittenJavaScript = [];
 
 for (const path of collectTextFiles(output)) {
   const source = readFileSync(path, "utf8");
@@ -30,11 +32,35 @@ for (const path of collectTextFiles(output)) {
     return `${prefix}${base}assets/`;
   });
 
-  if (updated !== source) writeFileSync(path, updated);
+  if (updated !== source) {
+    writeFileSync(path, updated);
+    if (extname(path) === ".js") rewrittenJavaScript.push(path);
+  }
 }
 
 if (replacements === 0) {
   throw new Error("No root-relative asset URLs were found in the Pages bundle.");
 }
 
-console.log(`Rewrote ${replacements} asset URLs for ${base}.`);
+const renamedAssets = rewrittenJavaScript.map((path) => {
+  const contents = readFileSync(path);
+  const digest = createHash("sha256").update(contents).digest("hex").slice(0, 8);
+  const previousName = basename(path);
+  const nextName = `${basename(path, ".js")}-pages-${digest}.js`;
+  const nextPath = join(dirname(path), nextName);
+  renameSync(path, nextPath);
+  return { previousName, nextName };
+});
+
+for (const path of collectTextFiles(output)) {
+  const source = readFileSync(path, "utf8");
+  const updated = renamedAssets.reduce(
+    (content, { previousName, nextName }) => content.replaceAll(previousName, nextName),
+    source,
+  );
+  if (updated !== source) writeFileSync(path, updated);
+}
+
+console.log(
+  `Rewrote ${replacements} asset URLs for ${base} and fingerprinted ${renamedAssets.length} scripts.`,
+);
