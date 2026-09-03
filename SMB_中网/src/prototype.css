@@ -46,7 +46,7 @@
 .app-header h1 {
   align-self: center;
   margin: 0;
-  font-size: 22px;
+  font-size: 19px;
   font-weight: 680;
   letter-spacing: 0.01em;
   text-align: center;
@@ -232,23 +232,23 @@
 
 .device-profile {
   display: grid;
-  grid-template-columns: 125px minmax(0, 1fr);
+  grid-template-columns: 116px minmax(0, 1fr);
   gap: 13px;
   align-items: center;
-  min-height: 168px;
-  padding: 18px 18px 14px;
+  min-height: 146px;
+  padding: 16px 18px 10px;
 }
 
 .device-image-wrap {
   display: grid;
-  width: 125px;
-  height: 122px;
+  width: 116px;
+  height: 108px;
   place-items: center;
 }
 
 .device-image-wrap img {
-  width: 122px;
-  height: 108px;
+  width: 114px;
+  height: 102px;
   object-fit: contain;
 }
 
@@ -258,7 +258,7 @@
 
 .device-profile-copy h2 {
   margin: 0 0 12px;
-  font-size: 18px;
+  font-size: 17px;
   font-weight: 700;
   line-height: 1.18;
   white-space: nowrap;
@@ -338,8 +338,14 @@
 .service-row[data-featured="true"] {
   margin: 0;
   padding: 14px 10px 12px;
-  border: 1px solid rgba(47, 154, 71, 0.36);
+  border: 1px solid rgba(154, 163, 174, 0.36);
   border-radius: 14px;
+  background: #fafbfc;
+}
+
+.service-row[data-featured="true"][data-state="eligible"],
+.service-row[data-featured="true"][data-state="not-yet"] {
+  border-color: rgba(47, 154, 71, 0.36);
   background: #f8fcf8;
 }
 
@@ -348,6 +354,10 @@
   grid-template-columns: 86px minmax(0, 1fr) 55px;
   gap: 8px;
   align-items: center;
+}
+
+.service-main-row[data-missing="true"] {
+  display: block;
 }
 
 .service-main-row strong {
@@ -394,9 +404,18 @@
   text-align: center;
 }
 
-.eligibility-result[data-eligible="false"] {
+.eligibility-result[data-state="not-yet"],
+.eligibility-result[data-state="exercised"] {
   background: #f0f2f4;
   color: #727b86;
+}
+
+.eligibility-result[data-state="none"] {
+  background: #f3f5f7;
+  color: #525b67;
+  font-size: 12px;
+  font-weight: 540;
+  line-height: 1.5;
 }
 
 .trade-in-button {
@@ -425,6 +444,16 @@
   color: var(--muted);
   font-size: 11px;
   line-height: 1.5;
+  text-align: center;
+}
+
+.service-disclaimer {
+  margin: 16px 0 0;
+  padding-top: 14px;
+  border-top: 1px solid var(--hairline);
+  color: #87919e;
+  font-size: 11px;
+  line-height: 1.55;
   text-align: center;
 }
 
@@ -548,14 +577,14 @@
   }
 
   .device-profile {
-    grid-template-columns: 108px minmax(0, 1fr);
+    grid-template-columns: 100px minmax(0, 1fr);
     padding-right: 14px;
     padding-left: 14px;
   }
 
   .device-image-wrap,
   .device-image-wrap img {
-    width: 106px;
+    width: 98px;
   }
 
   .service-main-row {
