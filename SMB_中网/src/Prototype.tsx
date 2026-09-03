@@ -2,7 +2,8 @@ import { useMemo, useState } from "react";
 import { CheckIcon, ChevronLeftIcon, ExternalLinkIcon } from "@radix-ui/react-icons";
 import { BottomSheet, Carousel, MobileScroll } from "./mobile";
 
-type ServiceStatus = "有效" | "已过期" | "未生效";
+type ServiceStatus = "有效" | "已过期" | "失效";
+type RefreshState = "eligible" | "not-yet" | "exercised" | "expired" | "none";
 
 type ServiceRecord = {
   name: string;
@@ -10,17 +11,31 @@ type ServiceRecord = {
   status: ServiceStatus;
 };
 
+type HardwareSpecs = {
+  cpu: string;
+  memory: string;
+  storage: string;
+  gpu: string;
+  screen: string;
+};
+
+type RefreshService = {
+  state: RefreshState;
+  period?: string;
+  status?: ServiceStatus;
+  description?: string;
+};
+
 type DeviceRecord = {
   id: string;
   name: string;
   shortName: string;
   sn: string;
-  specs: string;
+  hardware: HardwareSpecs;
   boundAt: string;
   image: string;
   services: ServiceRecord[];
-  eligibility: string;
-  eligible: boolean;
+  refreshService: RefreshService;
 };
 
 const devices: DeviceRecord[] = [
@@ -29,65 +44,131 @@ const devices: DeviceRecord[] = [
     name: "ThinkPad T14p Gen 3",
     shortName: "T14p Gen 3",
     sn: "PF5HGSV5",
-    specs: "Intel Core Ultra 7｜32GB｜2.8K OLED",
+    hardware: {
+      cpu: "Core Ultra 9 285H",
+      memory: "64GB（32GB+32GB）",
+      storage: "1TB（M.2 SSD）",
+      gpu: "Intel Arc 140T GPU",
+      screen: "14.5英寸",
+    },
     boundAt: "2026-08-20",
     image: "/assets/products/thinkpad-t14p-gen3.png",
     services: [
       { name: "主要保修", period: "2025-11-01 至 2028-10-31", status: "有效" },
       { name: "上门服务", period: "2025-11-01 至 2027-10-31", status: "有效" },
-      { name: "保值换新服务", period: "2025-11-01 至 2029-10-31", status: "有效" },
     ],
-    eligibility: "当前可行权",
-    eligible: true,
+    refreshService: {
+      state: "eligible",
+      period: "2025-11-01 至 2029-10-31",
+      status: "有效",
+      description: "当前可行权",
+    },
   },
   {
     id: "x1",
     name: "ThinkPad X1 Carbon Gen 12",
     shortName: "X1 Carbon G12",
     sn: "PF6ABCD8",
-    specs: "Intel Core Ultra 5｜16GB｜2.8K OLED",
+    hardware: {
+      cpu: "Core Ultra 7 165U",
+      memory: "32GB",
+      storage: "1TB（M.2 SSD）",
+      gpu: "Intel Graphics",
+      screen: "14英寸",
+    },
     boundAt: "2026-07-02",
     image: "/assets/products/thinkpad-x1-carbon-gen12.png",
     services: [
       { name: "主要保修", period: "2023-06-01 至 2026-05-31", status: "已过期" },
       { name: "上门服务", period: "2025-06-01 至 2027-05-31", status: "有效" },
-      { name: "保值换新服务", period: "2025-06-01 至 2029-05-31", status: "有效" },
     ],
-    eligibility: "当前不可行权",
-    eligible: false,
+    refreshService: {
+      state: "not-yet",
+      period: "2025-06-01 至 2029-05-31",
+      status: "有效",
+      description: "未到行权有效期",
+    },
   },
   {
     id: "t14s",
     name: "ThinkPad T14s Gen 5",
     shortName: "T14s Gen 5",
     sn: "PF7T14S5",
-    specs: "AMD Ryzen 7 PRO｜32GB｜2.8K OLED",
+    hardware: {
+      cpu: "AMD Ryzen 7 PRO 8840U",
+      memory: "32GB",
+      storage: "1TB（M.2 SSD）",
+      gpu: "AMD Radeon 780M",
+      screen: "14英寸",
+    },
     boundAt: "2026-05-16",
     image: "/assets/products/thinkpad-t14s-gen5.png",
     services: [
       { name: "主要保修", period: "2026-05-01 至 2029-04-30", status: "有效" },
       { name: "上门服务", period: "2026-05-01 至 2028-04-30", status: "有效" },
-      { name: "保值换新服务", period: "2026-09-15 至 2030-04-30", status: "未生效" },
     ],
-    eligibility: "当前不可行权",
-    eligible: false,
+    refreshService: {
+      state: "exercised",
+      period: "2026-05-01 至 2030-04-30",
+      status: "失效",
+      description: "已行权",
+    },
   },
   {
     id: "p14s",
     name: "ThinkPad P14s Gen 5",
     shortName: "P14s Gen 5",
     sn: "PF8P14S5",
-    specs: "Intel Core Ultra 7｜64GB｜2.8K OLED",
+    hardware: {
+      cpu: "Core Ultra 7 155H",
+      memory: "64GB（32GB+32GB）",
+      storage: "2TB（M.2 SSD）",
+      gpu: "NVIDIA RTX 500 Ada",
+      screen: "14.5英寸",
+    },
     boundAt: "2026-03-08",
     image: "/assets/products/thinkpad-p14s-gen5.png",
     services: [
       { name: "主要保修", period: "2024-03-01 至 2027-02-28", status: "有效" },
       { name: "上门服务", period: "2024-03-01 至 2026-02-28", status: "已过期" },
-      { name: "保值换新服务", period: "2024-03-01 至 2026-08-15", status: "已过期" },
     ],
-    eligibility: "当前不可行权",
-    eligible: false,
+    refreshService: {
+      state: "expired",
+      period: "2024-03-01 至 2026-08-15",
+      status: "已过期",
+    },
   },
+  {
+    id: "p14s-spare",
+    name: "ThinkPad P14s Gen 5",
+    shortName: "P14s 备用机",
+    sn: "PF9NOADD",
+    hardware: {
+      cpu: "Core Ultra 5 125H",
+      memory: "16GB（8GB+8GB）",
+      storage: "512GB（M.2 SSD）",
+      gpu: "Intel Arc Graphics",
+      screen: "14英寸",
+    },
+    boundAt: "2026-01-12",
+    image: "/assets/products/thinkpad-p14s-gen5.png",
+    services: [
+      { name: "主要保修", period: "2026-01-01 至 2028-12-31", status: "有效" },
+      { name: "上门服务", period: "2026-01-01 至 2027-12-31", status: "有效" },
+    ],
+    refreshService: {
+      state: "none",
+      description: "可前往联想官网了解“ThinkPad增值换新”服务",
+    },
+  },
+];
+
+const hardwareLabels: Array<[keyof HardwareSpecs, string]> = [
+  ["cpu", "CPU型号"],
+  ["memory", "内存容量"],
+  ["storage", "硬盘"],
+  ["gpu", "显卡"],
+  ["screen", "屏幕尺寸"],
 ];
 
 type SheetMode = "bind" | "trade" | null;
@@ -115,31 +196,34 @@ export default function Prototype() {
     window.setTimeout(() => setNotice(""), 2200);
   };
 
+  const refreshService = selected.refreshService;
+  const showsTradeButton = refreshService.state === "eligible" || refreshService.state === "not-yet";
+
   return (
     <div className="value-refresh-app">
-      <header className="app-header" aria-label="保值换新页头">
+      <header className="app-header" aria-label="ThinkPad增值换新页头">
         <button className="header-icon-button" type="button" aria-label="返回" onClick={showBackNotice}>
           <ChevronLeftIcon width="28" height="28" />
         </button>
-        <h1>保值换新</h1>
+        <h1>ThinkPad增值换新</h1>
         <button className="bind-device-button" type="button" onClick={() => setSheetMode("bind")}>
           绑定设备
         </button>
       </header>
 
       <MobileScroll className="app-screen">
-        <main className="screen-content" aria-label="保值换新详情">
+        <main className="screen-content" aria-label="ThinkPad增值换新详情">
           <section className="device-switcher" aria-labelledby="device-list-title">
             <div className="device-switcher-heading">
               <div>
-                <h2 id="device-list-title">我的设备 <span>4台</span></h2>
+                <h2 id="device-list-title">我的设备 <span>{devices.length}台</span></h2>
                 <p>左右滑动切换设备</p>
               </div>
-              <div className="carousel-position" aria-label={`第 ${selectedIndex + 1} 台，共 4 台`}>
+              <div className="carousel-position" aria-label={`第 ${selectedIndex + 1} 台，共 ${devices.length} 台`}>
                 <div className="position-dots" aria-hidden="true">
                   {devices.map((device) => <i key={device.id} data-active={device.id === selectedId} />)}
                 </div>
-                <span>{selectedIndex + 1} / 4</span>
+                <span>{selectedIndex + 1} / {devices.length}</span>
               </div>
             </div>
 
@@ -178,7 +262,7 @@ export default function Prototype() {
                 <h2>{selected.name}</h2>
                 <dl>
                   <div><dt>主机编号</dt><dd>{selected.sn}</dd></div>
-                  <div><dt>配置</dt><dd>{selected.specs}</dd></div>
+                  <div><dt>配置摘要</dt><dd>{selected.hardware.cpu}｜{selected.hardware.memory}｜{selected.hardware.storage}</dd></div>
                   <div><dt>绑定时间</dt><dd>{selected.boundAt}</dd></div>
                 </dl>
               </div>
@@ -192,35 +276,51 @@ export default function Prototype() {
             {activeTab === "service" ? (
               <div className="service-panel" role="tabpanel">
                 <div className="service-list">
-                  {selected.services.map((service, index) => {
-                    const isTradeIn = index === 2;
+                  {selected.services.map((service) => {
                     const valid = service.status === "有效";
                     return (
-                      <article key={service.name} className="service-row" data-featured={isTradeIn}>
+                      <article key={service.name} className="service-row">
                         <div className="service-main-row">
                           <strong>{service.name}</strong>
                           <span className="service-period">{service.period}</span>
                           <span className="service-status" data-valid={valid}><i aria-hidden="true" />{service.status}</span>
                         </div>
-                        {isTradeIn ? <div className="eligibility-result" data-eligible={selected.eligible}>联想百应返回：{selected.eligibility}</div> : null}
                       </article>
                     );
                   })}
+
+                  <article className="service-row" data-featured="true" data-state={refreshService.state}>
+                    <div className="service-main-row" data-missing={refreshService.state === "none"}>
+                      <strong>增值换新</strong>
+                      {refreshService.period ? <span className="service-period">{refreshService.period}</span> : null}
+                      {refreshService.status ? (
+                        <span className="service-status" data-valid={refreshService.status === "有效"}>
+                          <i aria-hidden="true" />{refreshService.status}
+                        </span>
+                      ) : null}
+                    </div>
+                    {refreshService.description ? (
+                      <div className="eligibility-result" data-state={refreshService.state}>{refreshService.description}</div>
+                    ) : null}
+                  </article>
                 </div>
 
-                {selected.eligible ? (
-                  <button className="trade-in-button" type="button" onClick={() => setSheetMode("trade")}>立即保值换新</button>
-                ) : (
-                  <button className="trade-in-button" data-disabled="true" type="button" disabled>当前不可行权</button>
-                )}
-                <p className="partner-note">将携带加密会员ID与主机编号，前往有的卖</p>
+                {showsTradeButton ? (
+                  refreshService.state === "eligible" ? (
+                    <button className="trade-in-button" type="button" onClick={() => setSheetMode("trade")}>立即增值换新</button>
+                  ) : (
+                    <button className="trade-in-button" data-disabled="true" type="button" disabled>未到行权有效期</button>
+                  )
+                ) : null}
+                {refreshService.state === "eligible" ? <p className="partner-note">将携带加密会员ID与主机编号，前往有的卖</p> : null}
+                <p className="service-disclaimer">页面仅展现部分信息，具体服务信息请登录服务网站查询</p>
               </div>
             ) : (
               <div className="device-info-panel" role="tabpanel">
                 <dl>
                   <div><dt>设备名称</dt><dd>{selected.name}</dd></div>
                   <div><dt>主机编号</dt><dd>{selected.sn}</dd></div>
-                  <div><dt>核心配置</dt><dd>{selected.specs}</dd></div>
+                  {hardwareLabels.map(([key, label]) => <div key={key}><dt>{label}</dt><dd>{selected.hardware[key]}</dd></div>)}
                   <div><dt>绑定时间</dt><dd>{selected.boundAt}</dd></div>
                 </dl>
                 <p>设备信息来自会员中心已绑定设备。</p>
@@ -228,7 +328,7 @@ export default function Prototype() {
             )}
           </section>
 
-          <p className="source-note">服务数据由联想百应提供 <span aria-hidden="true">｜</span> 更新于 2026-08-31 15:42</p>
+          <p className="source-note">服务数据由联想百应提供 <span aria-hidden="true">｜</span> 更新于 2026-09-03 15:42</p>
         </main>
       </MobileScroll>
 
@@ -244,7 +344,7 @@ export default function Prototype() {
       <BottomSheet open={sheetMode === "trade"} onOpenChange={(open) => setSheetMode(open ? "trade" : null)} title="前往有的卖" description="继续后将携带加密会员ID与当前设备主机编号。" snap={0.44}>
         <div className="action-sheet-body">
           <div className="handoff-device"><img src={selected.image} alt="" draggable="false" /><div><strong>{selected.name}</strong><span>{selected.sn}</span></div></div>
-          <button type="button" onClick={() => setSheetMode(null)}><ExternalLinkIcon /> 演示：继续保值换新</button>
+          <button type="button" onClick={() => setSheetMode(null)}><ExternalLinkIcon /> 演示：继续增值换新</button>
         </div>
       </BottomSheet>
     </div>
