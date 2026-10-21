@@ -3,13 +3,8 @@ import { CheckIcon, ChevronLeftIcon, ExternalLinkIcon } from "@radix-ui/react-ic
 import { BottomSheet, Carousel, MobileScroll } from "./mobile";
 
 type ServiceStatus = "有效" | "已过期" | "失效";
-type RefreshState = "eligible" | "not-yet" | "exercised" | "expired" | "none";
-
-type ServiceRecord = {
-  name: string;
-  period: string;
-  status: ServiceStatus;
-};
+type RefreshServiceState = "eligible" | "not-yet" | "exercised" | "expired";
+type RefreshPresentationState = RefreshServiceState | "no-service" | "error";
 
 type HardwareSpecs = {
   cpu: string;
@@ -20,10 +15,18 @@ type HardwareSpecs = {
 };
 
 type RefreshService = {
-  state: RefreshState;
+  hasService: 0 | 1;
+  startDate?: string;
+  endDate?: string;
+  serviceState?: RefreshServiceState;
+};
+
+type RefreshPresentation = {
+  state: RefreshPresentationState;
   period?: string;
   status?: ServiceStatus;
   description?: string;
+  button?: { text: string; enabled: boolean };
 };
 
 type DeviceRecord = {
@@ -34,9 +37,56 @@ type DeviceRecord = {
   hardware: HardwareSpecs;
   boundAt: string;
   image: string;
-  services: ServiceRecord[];
   refreshService: RefreshService;
+  queriedAt: string;
 };
+
+function presentRefreshService(service: RefreshService): RefreshPresentation {
+  if (service.hasService === 0) {
+    return {
+      state: "no-service",
+      description: "可前往联想官网了解“ThinkPad增值换新”服务",
+    };
+  }
+
+  if (!service.startDate || !service.endDate || !service.serviceState) {
+    return {
+      state: "error",
+      description: "服务状态暂不可用，请稍后重试",
+    };
+  }
+
+  const period = `${service.startDate} 至 ${service.endDate}`;
+  const presentations: Record<RefreshServiceState, RefreshPresentation> = {
+    "not-yet": {
+      state: "not-yet",
+      period,
+      status: "有效",
+      description: "未到行权有效期",
+      button: { text: "未到行权有效期", enabled: false },
+    },
+    eligible: {
+      state: "eligible",
+      period,
+      status: "有效",
+      description: "当前可行权",
+      button: { text: "立即增值换新", enabled: true },
+    },
+    exercised: {
+      state: "exercised",
+      period,
+      status: "失效",
+      description: "已行权",
+    },
+    expired: {
+      state: "expired",
+      period,
+      status: "已过期",
+    },
+  };
+
+  return presentations[service.serviceState];
+}
 
 const devices: DeviceRecord[] = [
   {
@@ -53,16 +103,13 @@ const devices: DeviceRecord[] = [
     },
     boundAt: "2026-08-20",
     image: "/assets/products/thinkpad-t14p-gen3.png",
-    services: [
-      { name: "主要保修", period: "2025-11-01 至 2028-10-31", status: "有效" },
-      { name: "上门服务", period: "2025-11-01 至 2027-10-31", status: "有效" },
-    ],
     refreshService: {
-      state: "eligible",
-      period: "2025-11-01 至 2029-10-31",
-      status: "有效",
-      description: "当前可行权",
+      hasService: 1,
+      startDate: "2025-11-01",
+      endDate: "2029-10-31",
+      serviceState: "eligible",
     },
+    queriedAt: "2026-10-21 10:18",
   },
   {
     id: "x1",
@@ -78,16 +125,13 @@ const devices: DeviceRecord[] = [
     },
     boundAt: "2026-07-02",
     image: "/assets/products/thinkpad-x1-carbon-gen12.png",
-    services: [
-      { name: "主要保修", period: "2023-06-01 至 2026-05-31", status: "已过期" },
-      { name: "上门服务", period: "2025-06-01 至 2027-05-31", status: "有效" },
-    ],
     refreshService: {
-      state: "not-yet",
-      period: "2025-06-01 至 2029-05-31",
-      status: "有效",
-      description: "未到行权有效期",
+      hasService: 1,
+      startDate: "2025-06-01",
+      endDate: "2029-05-31",
+      serviceState: "not-yet",
     },
+    queriedAt: "2026-10-21 10:18",
   },
   {
     id: "t14s",
@@ -103,16 +147,13 @@ const devices: DeviceRecord[] = [
     },
     boundAt: "2026-05-16",
     image: "/assets/products/thinkpad-t14s-gen5.png",
-    services: [
-      { name: "主要保修", period: "2026-05-01 至 2029-04-30", status: "有效" },
-      { name: "上门服务", period: "2026-05-01 至 2028-04-30", status: "有效" },
-    ],
     refreshService: {
-      state: "exercised",
-      period: "2026-05-01 至 2030-04-30",
-      status: "失效",
-      description: "已行权",
+      hasService: 1,
+      startDate: "2026-05-01",
+      endDate: "2030-04-30",
+      serviceState: "exercised",
     },
+    queriedAt: "2026-10-21 10:18",
   },
   {
     id: "p14s",
@@ -128,15 +169,13 @@ const devices: DeviceRecord[] = [
     },
     boundAt: "2026-03-08",
     image: "/assets/products/thinkpad-p14s-gen5.png",
-    services: [
-      { name: "主要保修", period: "2024-03-01 至 2027-02-28", status: "有效" },
-      { name: "上门服务", period: "2024-03-01 至 2026-02-28", status: "已过期" },
-    ],
     refreshService: {
-      state: "expired",
-      period: "2024-03-01 至 2026-08-15",
-      status: "已过期",
+      hasService: 1,
+      startDate: "2024-03-01",
+      endDate: "2026-08-15",
+      serviceState: "expired",
     },
+    queriedAt: "2026-10-21 10:18",
   },
   {
     id: "p14s-spare",
@@ -152,14 +191,10 @@ const devices: DeviceRecord[] = [
     },
     boundAt: "2026-01-12",
     image: "/assets/products/thinkpad-p14s-gen5.png",
-    services: [
-      { name: "主要保修", period: "2026-01-01 至 2028-12-31", status: "有效" },
-      { name: "上门服务", period: "2026-01-01 至 2027-12-31", status: "有效" },
-    ],
     refreshService: {
-      state: "none",
-      description: "可前往联想官网了解“ThinkPad增值换新”服务",
+      hasService: 0,
     },
+    queriedAt: "2026-10-21 10:18",
   },
 ];
 
@@ -178,6 +213,7 @@ export default function Prototype() {
   const [activeTab, setActiveTab] = useState<"service" | "device">("service");
   const [sheetMode, setSheetMode] = useState<SheetMode>(null);
   const [notice, setNotice] = useState("");
+  const [isRevalidating, setIsRevalidating] = useState(false);
 
   const selectedIndex = devices.findIndex((device) => device.id === selectedId);
   const selected = useMemo(
@@ -189,6 +225,7 @@ export default function Prototype() {
     setSelectedId(id);
     setActiveTab("service");
     setNotice("");
+    setIsRevalidating(false);
   };
 
   const showBackNotice = () => {
@@ -196,8 +233,17 @@ export default function Prototype() {
     window.setTimeout(() => setNotice(""), 2200);
   };
 
-  const refreshService = selected.refreshService;
-  const showsTradeButton = refreshService.state === "eligible" || refreshService.state === "not-yet";
+  const refreshPresentation = presentRefreshService(selected.refreshService);
+
+  const handleTradeClick = () => {
+    setIsRevalidating(true);
+    setNotice("正在向联想百应确认最新服务状态…");
+    window.setTimeout(() => {
+      setIsRevalidating(false);
+      setNotice("");
+      setSheetMode("trade");
+    }, 700);
+  };
 
   return (
     <div className="value-refresh-app">
@@ -276,43 +322,35 @@ export default function Prototype() {
             {activeTab === "service" ? (
               <div className="service-panel" role="tabpanel">
                 <div className="service-list">
-                  {selected.services.map((service) => {
-                    const valid = service.status === "有效";
-                    return (
-                      <article key={service.name} className="service-row">
-                        <div className="service-main-row">
-                          <strong>{service.name}</strong>
-                          <span className="service-period">{service.period}</span>
-                          <span className="service-status" data-valid={valid}><i aria-hidden="true" />{service.status}</span>
-                        </div>
-                      </article>
-                    );
-                  })}
-
-                  <article className="service-row" data-featured="true" data-state={refreshService.state}>
-                    <div className="service-main-row" data-missing={refreshService.state === "none"}>
+                  <article className="service-row" data-featured="true" data-state={refreshPresentation.state}>
+                    <div className="service-main-row" data-missing={refreshPresentation.state === "no-service" || refreshPresentation.state === "error"}>
                       <strong>增值换新</strong>
-                      {refreshService.period ? <span className="service-period">{refreshService.period}</span> : null}
-                      {refreshService.status ? (
-                        <span className="service-status" data-valid={refreshService.status === "有效"}>
-                          <i aria-hidden="true" />{refreshService.status}
+                      {refreshPresentation.period ? <span className="service-period">{refreshPresentation.period}</span> : null}
+                      {refreshPresentation.status ? (
+                        <span className="service-status" data-valid={refreshPresentation.status === "有效"}>
+                          <i aria-hidden="true" />{refreshPresentation.status}
                         </span>
                       ) : null}
                     </div>
-                    {refreshService.description ? (
-                      <div className="eligibility-result" data-state={refreshService.state}>{refreshService.description}</div>
+                    {refreshPresentation.description ? (
+                      <div className="eligibility-result" data-state={refreshPresentation.state}>{refreshPresentation.description}</div>
                     ) : null}
                   </article>
                 </div>
 
-                {showsTradeButton ? (
-                  refreshService.state === "eligible" ? (
-                    <button className="trade-in-button" type="button" onClick={() => setSheetMode("trade")}>立即增值换新</button>
-                  ) : (
-                    <button className="trade-in-button" data-disabled="true" type="button" disabled>未到行权有效期</button>
-                  )
+                {refreshPresentation.button ? (
+                  <button
+                    className="trade-in-button"
+                    data-disabled={!refreshPresentation.button.enabled}
+                    data-revalidating={isRevalidating}
+                    type="button"
+                    disabled={!refreshPresentation.button.enabled || isRevalidating}
+                    onClick={handleTradeClick}
+                  >
+                    {isRevalidating ? "正在确认状态…" : refreshPresentation.button.text}
+                  </button>
                 ) : null}
-                {refreshService.state === "eligible" ? <p className="partner-note">将携带加密会员ID与主机编号，前往有的卖</p> : null}
+                {refreshPresentation.state === "eligible" ? <p className="partner-note">点击后将重新确认百应状态，再携带加密会员ID与主机编号前往有的卖</p> : null}
                 <p className="service-disclaimer">页面仅展现部分信息，具体服务信息请登录服务网站查询</p>
               </div>
             ) : (
@@ -323,12 +361,12 @@ export default function Prototype() {
                   {hardwareLabels.map(([key, label]) => <div key={key}><dt>{label}</dt><dd>{selected.hardware[key]}</dd></div>)}
                   <div><dt>绑定时间</dt><dd>{selected.boundAt}</dd></div>
                 </dl>
-                <p>设备信息来自会员中心已绑定设备。</p>
+                <p>绑定关系来自会员中心，设备信息由联想百应提供。</p>
               </div>
             )}
           </section>
 
-          <p className="source-note">服务数据由联想百应提供 <span aria-hidden="true">｜</span> 更新于 2026-09-03 15:42</p>
+          <p className="source-note">服务数据由联想百应提供 <span aria-hidden="true">｜</span> 查询于 {selected.queriedAt}</p>
         </main>
       </MobileScroll>
 
@@ -341,7 +379,7 @@ export default function Prototype() {
         </div>
       </BottomSheet>
 
-      <BottomSheet open={sheetMode === "trade"} onOpenChange={(open) => setSheetMode(open ? "trade" : null)} title="前往有的卖" description="继续后将携带加密会员ID与当前设备主机编号。" snap={0.44}>
+      <BottomSheet open={sheetMode === "trade"} onOpenChange={(open) => setSheetMode(open ? "trade" : null)} title="前往有的卖" description="联想百应已确认当前可行权。继续后将携带加密会员ID与当前设备主机编号。" snap={0.44}>
         <div className="action-sheet-body">
           <div className="handoff-device"><img src={selected.image} alt="" draggable="false" /><div><strong>{selected.name}</strong><span>{selected.sn}</span></div></div>
           <button type="button" onClick={() => setSheetMode(null)}><ExternalLinkIcon /> 演示：继续增值换新</button>
