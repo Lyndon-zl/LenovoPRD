@@ -410,7 +410,8 @@
   color: #727b86;
 }
 
-.eligibility-result[data-state="none"] {
+.eligibility-result[data-state="no-service"],
+.eligibility-result[data-state="error"] {
   background: #f3f5f7;
   color: #525b67;
   font-size: 12px;
@@ -434,7 +435,8 @@
   background: var(--lenovo-red-dark);
 }
 
-.trade-in-button[data-disabled="true"] {
+.trade-in-button[data-disabled="true"],
+.trade-in-button[data-revalidating="true"] {
   background: #aeb5bd;
   box-shadow: none;
 }
